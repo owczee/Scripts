@@ -43,18 +43,6 @@ ABSORBS = [
 RockCake = [585, 391]
 
 
-# FOR FINDING COORDS ON SCREEN
-# try:
-#     while True:
-#         x, y = auto.position()
-#         positionStr = 'X: ' + str(x).rjust(4) + ' Y: ' + str(y).rjust(4)
-#         print(positionStr),
-#         print('\b' * (len(positionStr) + 2)),
-#         sys.stdout.flush()
-# except KeyboardInterrupt:
-#     print('\n')
-
-
 def countdown(time_sec):
     while time_sec:
 
@@ -72,26 +60,26 @@ def countdown(time_sec):
 
 def eat_rockcake():
     x, y = RockCake[0], RockCake[1]
-    #rocktimer = countdown(random.randint(70, 80))
+    auto.move(random.randint(x - 4, x + 4), random.randint(y - 4, y + 5), 0.5)
+    auto.click()
+    countdown(random.randint(1, 3))
+    auto.click()
+    countdown(random.randint(1, 2))
+    auto.click()
     print("using rockcake")
-    # Weird behaviour with using the auto.click=(clicks=2) but below works.
-    auto.click()
-    countdown(random.randint(1,5))
-    auto.click()
-    countdown(random.randint(1,5))
-    auto.click()
 
 
-def drink_overload():
-    for pot in POTS:
-        # If still doses in this pot, drink. If not check next
-        if pot['doses'] > 0:
-            x, y = pot['coords'][0], pot['coords'][1]
-            auto.move(random.randint(x - 4, x + 4), random.randint(y - 4, y + 5), 0.5)
-            auto.click()
-            print("drinking overload")
-            pot['doses'] -= 1
-            break
+def drink_overload(doses):
+    for _ in range(doses):
+        for pot in POTS:
+            # If still doses in this pot, drink. If not check next
+            if pot['doses'] > 0:
+                x, y = pot['coords'][0], pot['coords'][1]
+                auto.move(random.randint(x - 4, x + 4), random.randint(y - 4, y + 5), 0.5)
+                auto.click()
+                print("drinking overload")
+                pot['doses'] -= 1
+                break
 
 
 def drink_absorbs(doses):
@@ -109,39 +97,51 @@ def drink_absorbs(doses):
 
 
 def main():
+
     print('Press Ctrl-C to quit.')
-    #countdown(10)
-    drink_overload()
-    absorb_threshold_multiplier = random.randint(1, 4)
-    overload_start_time = time.time()
-    absorb_start_time = time.time()
+
     # threshold time for repotting (seconds)
     overload_threshold = random.randint(300, 330)
-    absorb_threshold = random.randint(100, 800)
+    absorb_threshold = random.randint(80, 90)
 
-    drank_pots = False
+    potion_threshold_multiplier = random.randint(1, 4)
+
+    drank_overload = False
+    drank_absorb = False
+    drink_overload(1)
+    eat_rockcake()
+
+    overload_start_time = time.time()
+    absorb_start_time = time.time()
+
+
     try:
         while True:
-            # hp resets every min, so we reset every 45-50 seconds.
-            # If we drank pots (mainly absorbs) that'll take some time... so reset faster
-            time.sleep(random.randint(35, 40)) if drank_pots else time.sleep(random.randint(45, 50))
+            countdown((random.randint(45, 60)))
             eat_rockcake()
-            drank_pots = False
+            drank_overload = False
+            drank_absorb = False
 
             # check to see if we need to use overload.
             if (time.time() - overload_start_time) > overload_threshold:
-                drink_overload()
-                overload_start_time, drank_pots = time.time(), True
+                drink_overload(1)
+                overload_start_time = time.time()
+                print(overload_start_time)
+                print('Drank Overload')
+                drank_overload = True
 
             # check to see if we need to drink absorbs.
-            if (time.time() - absorb_start_time) > (absorb_threshold * absorb_threshold_multiplier):
-                drink_absorbs(absorb_threshold_multiplier)
-                absorb_start_time, absorb_threshold_multiplier = time.time(), random.randint(1, 4)
-                drank_pots = True
+            if (time.time() - absorb_start_time) > (absorb_threshold):
+                drink_absorbs(potion_threshold_multiplier)
+                absorb_start_time = time.time()
+                potion_threshold_multiplier = random.randint(1, 4)
+                print(absorb_start_time)
+                print('Drank Absorb')
+                drank_absorb = True
 
-            # if we drank a pot, move back to prayer orb
-            if drank_pots:
-                auto.move(RockCake, 0.5)
+            if drank_absorb or drank_overload:
+                x, y = RockCake[0], RockCake[1]
+                auto.move(random.randint(x - 4, x + 4), random.randint(y - 4, y + 5), 0.5)
 
     except (KeyboardInterrupt, SystemExit):
         sys.exit(0)
