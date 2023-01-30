@@ -1,8 +1,18 @@
-import mouse
+from pyHM import mouse as auto
 import time
+import sys
 
+#looping
 
-print("starting in 3 seconds")
-time.sleep(1)
-position = mouse.get_position()
-print(position)
+def main():
+    try:
+        while True:
+         #   print("starting in 1 second")
+            time.sleep(2)
+            print(auto.get_current_position())
+
+    except (KeyboardInterrupt, SystemExit):
+        sys.exit(0)
+
+if __name__ == "__main__":
+    main()

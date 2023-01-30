@@ -1,4 +1,6 @@
-import mouse as auto
+import pyautogui as auto
+import pyautogui
+import cv2
 import sys
 import random
 import time
@@ -6,28 +8,39 @@ import time
 # We assume that we are taking in 5 super combat pots,
 # in the first row/left first spot of second
 POTS = [
-    {'coords': [625, 398], 'doses': 1},
-    {'coords': [667, 394], 'doses': 1},
-    {'coords': [710, 394], 'doses': 1}
+    {'coords': [937, 595], 'doses': 4},
+    {'coords': [1004, 599], 'doses': 4},
+    {'coords': [1067, 594], 'doses': 4}
 ]
 
 ABSORBS = [
-    {'coords': [586, 608], 'doses': 4},
-    {'coords': [627, 608], 'doses': 4},
-    {'coords': [668, 609], 'doses': 4},
-    {'coords': [624, 576], 'doses': 4},
-    {'coords': [582, 573], 'doses': 4},
-    {'coords': [665, 570], 'doses': 4},
-    {'coords': [666, 537], 'doses': 4},
+    {'coords': [1004, 698], 'doses': 4},
+    {'coords': [1064, 701], 'doses': 4},
+    {'coords': [939, 700], 'doses': 4},
+    {'coords': [936, 754], 'doses': 4},
+    {'coords': [879, 758], 'doses': 4},
+    {'coords': [1002, 760], 'doses': 4},
+    {'coords': [1062, 755], 'doses': 4},
+    {'coords': [1067, 810], 'doses': 4},
+    {'coords': [1002, 812], 'doses': 4},
+    {'coords': [938, 809], 'doses': 4},
+    {'coords': [876, 808], 'doses': 4},
+    {'coords': [879, 865], 'doses': 4},
+    {'coords': [942, 862], 'doses': 4},
+    {'coords': [1004, 863], 'doses': 4},
+    {'coords': [1067, 865], 'doses': 4},
+    {'coords': [1057, 920], 'doses': 4},
+    {'coords': [1003, 918], 'doses': 4},
+    {'coords': [942, 915], 'doses': 4},
+    {'coords': [875, 922], 'doses': 4}
 ]
 
 # Use the rock cake
-RockCake = [585, 391]
+RockCake = [873, 589]
 
 
 def countdown(time_sec):
     while time_sec:
-
         mins, secs = divmod(time_sec, 60)
 
         timeformat = f'{mins:02d}:{secs:02d}'
@@ -41,40 +54,28 @@ def countdown(time_sec):
 
 
 def eat_rockcake():
-    print("using rockcake")
-    x, y = RockCake[0], RockCake[1]
-    auto.move(random.randint(x - 4, x + 4), random.randint(y - 4, y + 5), 0.5)
+    start = pyautogui.locateCenterOnScreen('rock.png', confidence=0.7)
+    print(start)
+    # pyautogui.click('rock.png')
+    # x, y = RockCake[0], RockCake[1]
+    auto.moveTo(start, duration=1, tween=pyautogui.easeInOutQuad)
     auto.click()
     time.sleep(random.randint(1, 2))
-    auto.click()
-    time.sleep(random.randint(1, 2))
-    auto.click()
-    time.sleep(random.randint(1, 2))
-    auto.click()
-    time.sleep(random.randint(1, 2))
-    auto.click()
-    time.sleep(random.randint(1, 2))
-    auto.click()
-    time.sleep(random.randint(1, 2))
-    auto.click()
-    time.sleep(random.randint(1, 2))
-    auto.click()
 
 
-
-def drink_overload(doses):
-    for _ in range(doses):
-        for pot in POTS:
-            # If still doses in this pot, drink. If not check next
-            if pot['doses'] > 0:
-                x, y = pot['coords'][0], pot['coords'][1]
-                time.sleep(1)
-                auto.move(random.randint(x - 4, x + 4), random.randint(y - 4, y + 5), 0.5)
-                auto.click()
-                print("drinking overload")
-                pot['doses'] -= 1
-                time.sleep(1)
-                break
+def drink_overload():
+    for pot in POTS:
+        # If still doses in this pot, drink. If not check next
+        if pot['doses'] > 0:
+            x, y = pot['coords'][0], pot['coords'][1]
+            time.sleep(1)
+            auto.moveTo(random.randint(x - 4, x + 4), random.randint(y - 4, y + 5), duration=1,
+                        tween=pyautogui.easeInOutQuad)
+            auto.click()
+            pot['doses'] -= 1
+            print('-10 Seconds For Overload')
+            time.sleep(10)
+            break
 
 
 def drink_absorbs(doses):
@@ -83,59 +84,58 @@ def drink_absorbs(doses):
             # If still doses in this pot, drink. If not check next
             if pot['doses'] > 0:
                 x, y = pot['coords'][0], pot['coords'][1]
-                auto.move(random.randint(x - 4, x + 4), random.randint(y - 4, y + 5), 0.5)
+                auto.moveTo(random.randint(x - 4, x + 4), random.randint(y - 4, y + 5), duration=1,
+                            tween=pyautogui.easeInOutQuad)
                 auto.click()
                 pot['doses'] -= 1
-                print("drinking absorb")
                 time.sleep(random.uniform(1.5, 2.2))
                 break
 
 
 def main():
-
     print('Press Ctrl-C to quit.')
 
     # threshold time for repotting (seconds)
-    overload_threshold = random.randint(300, 330)
-    absorb_threshold = random.randint(80, 90)
+
+    drink_overload()
+
+    overload_threshold = 295
+    absorb_threshold = 150
 
     potion_threshold_multiplier = random.randint(1, 4)
 
-    drank_overload = False
-    drank_absorb = False
-    drink_overload(1)
-    drink_absorbs(4)
-    eat_rockcake()
-
     overload_start_time = time.time()
     absorb_start_time = time.time()
-
+    drank_overload = False
+    drank_absorb = False
 
     try:
         while True:
-            countdown((random.randint(55, 65)))
+            print('Waiting 12-20 Seconds')
+            countdown(random.randint(12, 20))
             drank_overload = False
             drank_absorb = False
 
             # check to see if we need to use overload.
             if (time.time() - overload_start_time) > overload_threshold:
-                drink_overload(potion_threshold_multiplier)
+                print('Drinking Overload')
+                drink_overload()
                 overload_start_time = time.time()
                 drank_overload = True
 
+            elif (time.time() - overload_start_time) < overload_threshold:
+                print('Eating Rockcake')
+                eat_rockcake()
+
             # check to see if we need to drink absorbs.
-            if (time.time() - absorb_start_time) > (absorb_threshold):
+            if (time.time() - absorb_start_time) > absorb_threshold:
+                print('Drinking Absorbs')
                 drink_absorbs(potion_threshold_multiplier)
                 absorb_start_time = time.time()
-                potion_threshold_multiplier = random.randint(1, 4)
                 drank_absorb = True
 
             if drank_absorb or drank_overload:
-                x, y = RockCake[0], RockCake[1]
-                auto.move(random.randint(x - 4, x + 4), random.randint(y - 4, y + 5), 0.5)
-
-            eat_rockcake()
-
+                auto.moveTo(873, 589, duration=1, tween=pyautogui.easeInOutQuad)
 
     except (KeyboardInterrupt, SystemExit):
         sys.exit(0)
