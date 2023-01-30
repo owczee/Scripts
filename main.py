@@ -1,21 +1,3 @@
-"""Old School Runescape NMZ Training Bot
-Written by Cole Boothman, April 2018 (Updated April 2020)
-UPDATE APRIL 2020: This is a bot for AFK training in NMZ for OSRS.
-The bot will flick your hp prayer, drink pots and absorbs pots.
-To run:
-- needs to be configured for each computer. Uncomment the coordinate section
-and fill in the coordinates by using the center of each icon in OSRS that
-is needed. (quick pray icon and inv slots)
-- make sure you set the threshold for combat pots repot time, and absorbs.
-for absorbs, time the amount of time it takes for the monsters to drain 1
-dose of absorb pot and use that as a reference (add like 5-10 secs extra).
-- boot up Runelite, and make sure you snap the window and always run it in
-this place on the screen, since the coordinates will rely on this.
-- go in nmz, rock cake to 1hp, then run the script.
-The absorb pots randomly wait between 1-4 'thresholds' that you've set and 
-will drink the proper amount of doses associated with the threshold multipler.
-Enjoy!
-"""
 import mouse as auto
 import sys
 import random
@@ -24,9 +6,9 @@ import time
 # We assume that we are taking in 5 super combat pots, 
 # in the first row/left first spot of second
 POTS = [
-    {'coords': [625, 398], 'doses': 4},
-    {'coords': [667, 394], 'doses': 4},
-    {'coords': [710, 394], 'doses': 4}
+    {'coords': [625, 398], 'doses': 1},
+    {'coords': [667, 394], 'doses': 1},
+    {'coords': [710, 394], 'doses': 1}
 ]
 
 ABSORBS = [
@@ -75,10 +57,12 @@ def drink_overload(doses):
             # If still doses in this pot, drink. If not check next
             if pot['doses'] > 0:
                 x, y = pot['coords'][0], pot['coords'][1]
+                time.sleep(1)
                 auto.move(random.randint(x - 4, x + 4), random.randint(y - 4, y + 5), 0.5)
                 auto.click()
                 print("drinking overload")
                 pot['doses'] -= 1
+                time.sleep(1)
                 break
 
 
@@ -117,7 +101,7 @@ def main():
 
     try:
         while True:
-            countdown((random.randint(45, 60)))
+            countdown((random.randint(55, 65)))
             eat_rockcake()
             drank_overload = False
             drank_absorb = False
