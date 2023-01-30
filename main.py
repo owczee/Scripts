@@ -3,7 +3,7 @@ import sys
 import random
 import time
 
-# We assume that we are taking in 5 super combat pots, 
+# We assume that we are taking in 5 super combat pots,
 # in the first row/left first spot of second
 POTS = [
     {'coords': [625, 398], 'doses': 1},
@@ -32,7 +32,7 @@ def countdown(time_sec):
 
         timeformat = f'{mins:02d}:{secs:02d}'
         # create a countdown using countdown(seconds) seconds being how many seconds the countdown will be.
-        print(timeformat, end='/r')
+        print(timeformat, end='\n')
 
         time.sleep(1)
         time_sec -= 1
@@ -41,14 +41,25 @@ def countdown(time_sec):
 
 
 def eat_rockcake():
+    print("using rockcake")
     x, y = RockCake[0], RockCake[1]
     auto.move(random.randint(x - 4, x + 4), random.randint(y - 4, y + 5), 0.5)
     auto.click()
-    countdown(random.randint(1, 3))
+    time.sleep(random.randint(1, 2))
     auto.click()
-    countdown(random.randint(1, 2))
+    time.sleep(random.randint(1, 2))
     auto.click()
-    print("using rockcake")
+    time.sleep(random.randint(1, 2))
+    auto.click()
+    time.sleep(random.randint(1, 2))
+    auto.click()
+    time.sleep(random.randint(1, 2))
+    auto.click()
+    time.sleep(random.randint(1, 2))
+    auto.click()
+    time.sleep(random.randint(1, 2))
+    auto.click()
+
 
 
 def drink_overload(doses):
@@ -93,6 +104,7 @@ def main():
     drank_overload = False
     drank_absorb = False
     drink_overload(1)
+    drink_absorbs(4)
     eat_rockcake()
 
     overload_start_time = time.time()
@@ -102,16 +114,13 @@ def main():
     try:
         while True:
             countdown((random.randint(55, 65)))
-            eat_rockcake()
             drank_overload = False
             drank_absorb = False
 
             # check to see if we need to use overload.
             if (time.time() - overload_start_time) > overload_threshold:
-                drink_overload(1)
+                drink_overload(potion_threshold_multiplier)
                 overload_start_time = time.time()
-                print(overload_start_time)
-                print('Drank Overload')
                 drank_overload = True
 
             # check to see if we need to drink absorbs.
@@ -119,13 +128,14 @@ def main():
                 drink_absorbs(potion_threshold_multiplier)
                 absorb_start_time = time.time()
                 potion_threshold_multiplier = random.randint(1, 4)
-                print(absorb_start_time)
-                print('Drank Absorb')
                 drank_absorb = True
 
             if drank_absorb or drank_overload:
                 x, y = RockCake[0], RockCake[1]
                 auto.move(random.randint(x - 4, x + 4), random.randint(y - 4, y + 5), 0.5)
+
+            eat_rockcake()
+
 
     except (KeyboardInterrupt, SystemExit):
         sys.exit(0)
